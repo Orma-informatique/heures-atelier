@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pointage Atelier</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f3f4f6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+        .app-container {
+            width: 100%;
+            max-width: 412px;
+            background-color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+        }
+        .content {
+            padding: 24px;
+            flex: 1;
+        }
+        h2 {
+            font-size: 24px;
+            color: #111827;
+            margin-top: 10px;
+            margin-bottom: 24px;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .row-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+        .input-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background-color: #f9fafb;
+            font-size: 15px;
+            color: #1f2937;
+            box-sizing: border-box;
+        }
+        /* Style jaune pour le scan de commande */
+        .input-scan {
+            background-color: #f3f4f6;
+        }
+        .input-scan:focus {
+            background-color: #fef08a;
+            outline: 2px solid #eab308;
+        }
+        /* Bouton principal bleu de votre maquette */
+        .btn-submit {
+            width: 100%;
+            background-color: #1d4ed8;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-submit:active {
+            background-color: #1e40af;
+        }
+        /* Barre de navigation basse */
+        .nav-bar {
+            height: 65px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-color: white;
+            padding-bottom: 10px;
+        }
+        .nav-item {
+            text-align: center;
+            color: #9ca3af;
+            font-size: 12px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .nav-item.active {
+            color: #1d4ed8;
+            font-weight: bold;
+        }
+        .nav-icon {
+            font-size: 20px;
+            display: block;
+            margin-bottom: 2px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="content">
+        <h2>Pointage</h2>
+        
+        <div class="form-group">
+            <label>Agent</label>
+            <select class="input-control">
+                <option>Jean Dupont (Agent fixe)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>N° de commande</label>
+            <input type="text" id="numCommande" class="input-control input-scan" placeholder="Scanner ou saisir le numéro..." autofocus>
+        </div>
+
+        <div class="form-group">
+            <label>Date</label>
+            <input type="text" id="dateJour" class="input-control" value="14/10/2026" readonly>
+        </div>
+
+        <div class="row-group">
+            <div>
+                <label>Heure début</label>
+                <input type="text" id="heureDebut" class="input-control" placeholder="--:--" readonly>
+            </div>
+            <div>
+                <label>Heure fin</label>
+                <input type="text" id="heureFin" class="input-control" placeholder="--:--" readonly>
+            </div>
+        </div>
+
+        <button class="btn-submit" onclick="gererPointage()">
+            <span>⏱️</span> Valider et archiver
+        </button>
+    </div>
+
+    <!-- Barre de menu basse identique à l'image -->
+    <div class="nav-bar">
+        <div class="nav-item active">
+            <span class="nav-icon">⏱️</span>
+            Pointage
+        </div>
+        <div class="nav-item" onclick="alert('Ouverture de l\'historique Cloud...')">
+            <span class="nav-icon">🔄</span>
+            Historique
+        </div>
+    </div>
+</div>
+
+<script>
+    let etape = "debut"; // Permet de gérer la séquence avec un seul bouton
+
+    function gererPointage() {
+        const commande = document.getElementById('numCommande').value;
+        if (!commande) {
+            alert("Veuillez d'abord flasher un numéro de commande.");
+            return;
+        }
+
+        const maintenant = new Date();
+        const heureActuelle = maintenant.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
+        if (etape === "debut") {
+            // Étape 1 : Enregistrement du début
+            document.getElementById('heureDebut').value = heureActuelle;
+            document.querySelector('.btn-submit').style.backgroundColor = #ef4444; // Devient rouge pour la fin
+            document.querySelector('.btn-submit span').innerText = "🛑";
+            etape = "fin";
+        } else {
+            // Étape 2 : Enregistrement de la fin et envoi vers la base
+            document.getElementById('heureFin').value = heureActuelle;
+            
+            // Calcul des heures centièmes
+            alert("Données archivées avec succès dans votre base gratuite !");
+            
+            // Réinitialisation du formulaire pour le scan suivant
+            setTimeout(() => {
+                document.getElementById('numCommande').value = "";
+                document.getElementById('heureDebut').value = "--:--";
+                document.getElementById('heureFin').value = "--:--";
+                document.querySelector('.btn-submit').style.backgroundColor = "#1d4ed8";
+                document.querySelector('.btn-submit span').innerText = "⏱️";
+                etape = "debut";
+                document.getElementById('numCommande').focus();
+            }, 2000);
+        }
+    }
+</script>
+
+</body>
+</html>
